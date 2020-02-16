@@ -23,8 +23,8 @@ namespace IrrigationServer.Models
 
         public string Megjegyzes { get; set; }
 
-        public Zona Zona { get; set; }
+        public virtual Zona Zona { get; set; }
 
-        public ICollection <Meres> Meresek { get; set; }
+        public virtual ICollection <Meres> Meresek { get; set; }
     }
 }

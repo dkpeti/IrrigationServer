@@ -32,6 +32,8 @@ namespace IrrigationServer
 
             services.AddDbContext<IrrigationDbContext >(opts => opts.UseSqlServer(Configuration["ConnectionString:IrrigationDB"]));
             services.AddScoped<IZonaManager, ZonaManager>();
+            services.AddScoped<ISzenzorManager, SzenzorManager>();
+            services.AddScoped<IMeresManager, MeresManager>();
             services.AddControllers();
 
             services.AddSwaggerGen(c =>

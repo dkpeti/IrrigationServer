@@ -1,5 +1,7 @@
 ﻿using IrrigationServer.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,8 @@ namespace IrrigationServer.Context
 {
     public class IrrigationDbContext : DbContext
     {
+        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
+
         public IrrigationDbContext(DbContextOptions options)
             : base(options)
         {
@@ -29,6 +33,15 @@ namespace IrrigationServer.Context
                 .WithOne(e => e.Szenzor)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLazyLoadingProxies();
+            optionsBuilder.UseLoggerFactory(MyLoggerFactory)  //tie-up DbContext with LoggerFactory object
+            .EnableSensitiveDataLogging()
+            .UseSqlServer(
+            @"Server=(localdb)\mssqllocaldb;Database=IrrigationDB;Trusted_Connection=True;ConnectRetryCount=0");
         }
 
         public DbSet<Zona> Zonak { get; set; }

@@ -15,6 +15,6 @@ namespace IrrigationServer.Models
 
         public string Nev { get; set; }
 
-        public ICollection<Szenzor> Szenzorok { get; set; }
+        public virtual ICollection<Szenzor> Szenzorok { get; set; }
     }
 }

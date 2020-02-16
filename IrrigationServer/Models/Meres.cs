@@ -17,6 +17,6 @@ namespace IrrigationServer.Models
 
         public long MertAdat { get; set; }
 
-        public Szenzor Szenzor { get; set; }
+        public virtual Szenzor Szenzor { get; set; }
     }
 }

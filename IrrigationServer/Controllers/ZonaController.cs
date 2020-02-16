@@ -27,19 +27,19 @@ namespace IrrigationServer.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            IEnumerable<Zona> zonas = _zonaManager.GetAll();
-            return Ok(zonas.Select(zona => _mapper.Map<ZonaDTO>(zona)));
+            IEnumerable<Zona> zonak = _zonaManager.GetAll();
+            return Ok(zonak.Select(zona => _mapper.Map<ZonaDTO>(zona)));
         }
 
         // GET: api/Zona/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetZona")]
         public IActionResult Get(long id)
         {
             Zona zona = _zonaManager.Get(id);
 
             if (zona == null)
             {
-                return NotFound("The Zona record couldn't be found.");
+                return NotFound("A Zona record nem talalhato.");
             }
 
             return Ok(_mapper.Map<ZonaDTO>(zona));
@@ -57,7 +57,7 @@ namespace IrrigationServer.Controllers
             Zona newZona = _mapper.Map<Zona>(zona);
             _zonaManager.Add(newZona);
             return CreatedAtRoute(
-                  "Get",
+                  "GetZona",
                   new { Id = newZona.Id },
                   _mapper.Map<ZonaDTO>(newZona));
         }
@@ -74,7 +74,7 @@ namespace IrrigationServer.Controllers
             Zona zonaToUpdate = _zonaManager.Get(id);
             if (zonaToUpdate == null)
             {
-                return NotFound("The Zona record couldn't be found.");
+                return NotFound("A Zona record nem talalhato.");
             }
 
             _zonaManager.Update(zonaToUpdate, _mapper.Map<Zona>(zona));
@@ -88,7 +88,7 @@ namespace IrrigationServer.Controllers
             Zona zona = _zonaManager.Get(id);
             if (zona == null)
             {
-                return NotFound("The Zona record couldn't be found.");
+                return NotFound("A Zona record nem talalhato.");
             }
 
             _zonaManager.Delete(zona);
