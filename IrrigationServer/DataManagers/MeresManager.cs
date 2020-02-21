@@ -16,6 +16,16 @@ namespace IrrigationServer.DataManagers
             _irrigationContext = context;
         }
 
+        public IEnumerable<Szenzor> GetAllByZonaId(long zonaId)
+        {
+            return _irrigationContext.Szenzorok.Where(szenzor => szenzor.Zona.Id == zonaId).ToList();
+        }
+
+        public IEnumerable<Meres> GetAllBySzenzorId(long szenzorId)
+        {
+            return _irrigationContext.Meresek.Where(meres => meres.Szenzor.Id == szenzorId).ToList();
+        }
+
         public IEnumerable<Meres> GetAll()
         {
             return _irrigationContext.Meresek.ToList();
@@ -46,5 +56,7 @@ namespace IrrigationServer.DataManagers
             _irrigationContext.Meresek.Remove(meres);
             _irrigationContext.SaveChanges();
         }
+
+       
     }
 }
