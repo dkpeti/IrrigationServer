@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -7,13 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20200216123918_IrrigationServer.IrrigationDbContext.AddProxies.cs" />
-    <Compile Remove="Migrations\20200216123918_IrrigationServer.IrrigationDbContext.AddProxies.Designer.cs" />
+    <Compile Remove="Migrations\20200223164401_IrrigationServerMigration.cs" />
+    <Compile Remove="Migrations\20200223164401_IrrigationServerMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200223201931_IrrigationServer.IrrigationDbContext.Initial.cs" />
+    <Compile Remove="Migrations\20200223201931_IrrigationServer.IrrigationDbContext.Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200223202552_IrrigationServer.IrrigationDbContext.Initial.cs" />
+    <Compile Remove="Migrations\20200223202552_IrrigationServer.IrrigationDbContext.Initial.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.44.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">

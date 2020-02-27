@@ -26,5 +26,6 @@ namespace IrrigationServer.Models
         public virtual Zona Zona { get; set; }
 
         public virtual ICollection <Meres> Meresek { get; set; }
+        public virtual Pi Pi { get; set; }
     }
 }

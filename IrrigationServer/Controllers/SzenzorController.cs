@@ -2,12 +2,14 @@
 using IrrigationServer.DataManagers;
 using IrrigationServer.DTOs;
 using IrrigationServer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace IrrigationServer.Controllers
 {
+    [Authorize]
     [Route("api/zona/{zonaId:int}/szenzor")]
     [ApiController]
     public class SzenzorController : ControllerBase

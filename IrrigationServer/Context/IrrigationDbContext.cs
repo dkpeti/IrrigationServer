@@ -1,4 +1,5 @@
 ﻿using IrrigationServer.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
@@ -9,28 +10,50 @@ using System.Threading.Tasks;
 
 namespace IrrigationServer.Context
 {
-    public class IrrigationDbContext : DbContext
+    public class IrrigationDbContext : IdentityDbContext<User>
     {
         public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
 
-        public IrrigationDbContext(DbContextOptions options)
+        public IrrigationDbContext(DbContextOptions<IrrigationDbContext> options)
             : base(options)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Kapcsolat létrehozása Zonak és Szenzorok között
+            base.OnModelCreating(modelBuilder);
+
+            // Kapcsolat létrehozása Zona és Szenzorok között
             modelBuilder.Entity<Zona>()
                 .HasMany(c => c.Szenzorok)
                 .WithOne(e => e.Zona)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
-            // Kapcsolat létrehozása Szenzorok és Meresek között
+            // Kapcsolat létrehozása Szenzor és Meresek között
             modelBuilder.Entity<Szenzor>()
                 .HasMany(c => c.Meresek)
                 .WithOne(e => e.Szenzor)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //Kapcsolat létrehozása Pi és Zónak között
+            modelBuilder.Entity<Pi>()
+               .HasMany(c => c.Zonak)
+               .WithOne(e => e.Pi)
+               .IsRequired()
+               .OnDelete(DeleteBehavior.Cascade);
+
+            //Kapcsolat létrehozása Pi és Szenzorok között
+            modelBuilder.Entity<Pi>()
+                .HasMany(c => c.Szenzorok)
+                .WithOne(e => e.Pi)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+             
+            //Kapcsolat létrehozása User és Pik között
+            modelBuilder.Entity<User>()
+                .HasMany(c => c.Pies)
+                .WithOne(e => e.User)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         }
@@ -44,6 +67,8 @@ namespace IrrigationServer.Context
             @"Server=(localdb)\mssqllocaldb;Database=IrrigationDB;Trusted_Connection=True;ConnectRetryCount=0");
         }
 
+        public DbSet<User>Users { get; set; }
+        public DbSet<Pi> Pies { get; set; }
         public DbSet<Zona> Zonak { get; set; }
         public DbSet<Szenzor> Szenzorok { get; set; }
         public DbSet<Meres> Meresek { get; set; }

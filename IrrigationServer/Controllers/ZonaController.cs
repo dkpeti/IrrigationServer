@@ -2,6 +2,7 @@
 using IrrigationServer.DataManagers;
 using IrrigationServer.DTOs;
 using IrrigationServer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -10,16 +11,19 @@ using System.Threading.Tasks;
 
 namespace IrrigationServer.Controllers
 {
+    //[Authorize]
     [Route("api/zona")]
     [ApiController]
     public class ZonaController : ControllerBase
     {
         private readonly IZonaManager _zonaManager;
+        private readonly IPiManager _piManager;
         private readonly IMapper _mapper;
 
-        public ZonaController(IZonaManager zonaManager, IMapper mapper)
+        public ZonaController(IZonaManager zonaManager, IPiManager piManager, IMapper mapper)
         {
             _zonaManager = zonaManager;
+            _piManager = piManager;
             _mapper = mapper;
         }
 
@@ -29,6 +33,7 @@ namespace IrrigationServer.Controllers
         {
             IEnumerable<Zona> zonak = _zonaManager.GetAll();
             return Ok(zonak.Select(zona => _mapper.Map<ZonaDTO>(zona)));
+
         }
 
         // GET: api/Zona/5
@@ -54,7 +59,14 @@ namespace IrrigationServer.Controllers
                 return BadRequest("Zona is null.");
             }
 
+            Pi pi = _piManager.Get(zona.PiId);
+            if(pi == null)
+            {
+                return BadRequest("Pi does not exist");
+            }
+    
             Zona newZona = _mapper.Map<Zona>(zona);
+            newZona.Pi = pi;
             _zonaManager.Add(newZona);
             return CreatedAtRoute(
                   "GetZona",
@@ -71,13 +83,22 @@ namespace IrrigationServer.Controllers
                 return BadRequest("Zona is null.");
             }
 
+            Pi pi = _piManager.Get(zona.PiId);
+            if (pi == null)
+            {
+                return BadRequest("Pi does not exist");
+            }
+
             Zona zonaToUpdate = _zonaManager.Get(id);
             if (zonaToUpdate == null)
             {
                 return NotFound("A Zona record nem talalhato.");
             }
 
-            _zonaManager.Update(zonaToUpdate, _mapper.Map<Zona>(zona));
+            Zona updatedZona = _mapper.Map<Zona>(zona);
+            updatedZona.Pi = pi;
+
+            _zonaManager.Update(zonaToUpdate, updatedZona);
             return NoContent();
         }
 

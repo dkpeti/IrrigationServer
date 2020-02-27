@@ -2,6 +2,7 @@
 using IrrigationServer.DataManagers;
 using IrrigationServer.DTOs;
 using IrrigationServer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace IrrigationServer.Controllers
 {
+    [Authorize]
     [Route("api/zona/{zonaId:int}/szenzor/{szenzorId:int}/meres")]
     [ApiController]
     public class MeresController : ControllerBase

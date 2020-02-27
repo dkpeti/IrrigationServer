@@ -5,17 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IrrigationServer.Models
+namespace IrrigationServer.DTOs
 {
-    public class Zona
+    public class ZonaDTO
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
-
+        public long PiId { get; set; }
         public string Nev { get; set; }
-
-        public virtual ICollection<Szenzor> Szenzorok { get; set; }
-        public virtual Pi Pi { get; set; }
     }
 }

@@ -11,9 +11,12 @@ namespace IrrigationServer.DTOs
     {
         public DataProfile()
         {
+            CreateMap<Pi, PiDTO>().ReverseMap();
+            CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<Zona, ZonaDTO>().ReverseMap();
             CreateMap<Szenzor, SzenzorDTO>().ReverseMap();
             CreateMap<Meres, MeresDTO>().ReverseMap();
+            CreateMap<UserTokenId, UserTokenIdDTO>().ReverseMap();
         }
     }
 }
