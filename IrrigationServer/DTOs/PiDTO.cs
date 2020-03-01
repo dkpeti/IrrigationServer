@@ -9,6 +9,6 @@ namespace IrrigationServer.DTOs
     {
         public long Id { get; set; }
         public string Nev { get; set; }
-        public int Azonosito { get; set; }
+        public string Azonosito { get; set; }
     }
 }

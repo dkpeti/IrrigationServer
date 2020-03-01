@@ -13,7 +13,7 @@ namespace IrrigationServer.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
         public string Nev { get; set; }
-        public int Azonosito { get; set; }
+        public string Azonosito { get; set; }
         public virtual ICollection<Zona> Zonak { get; set; }
         public virtual ICollection<Szenzor>Szenzorok { get; set; }
         public virtual User User { get; set; }
