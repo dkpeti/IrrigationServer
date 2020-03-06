@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace IrrigationServer.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/pi")]
     public class PiController : ControllerBase
     {
@@ -56,8 +56,10 @@ namespace IrrigationServer.Controllers
                 return BadRequest("Pi is null");
             }
 
-            Pi newPi = _mapper.Map<Pi>(pi);
-            newPi.User = await _userManager.FindByIdAsync("425760f0-4198-48b1-9d5a-5dd4e97c857d");
+            Pi newPi = _mapper.Map<Pi>(pi); 
+            User user = await _userManager.GetUserAsync(User);
+
+            newPi.User = user;
             _piManager.Add(newPi);
             return CreatedAtRoute(
                    "GetPi",

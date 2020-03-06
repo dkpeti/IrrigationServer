@@ -37,6 +37,7 @@ namespace IrrigationServer.DataManagers
         {
             zona.Nev = entity.Nev;
             zona.Szenzorok = entity.Szenzorok;
+            zona.Pi = entity.Pi;
 
             _irrigationContext.SaveChanges();
         }

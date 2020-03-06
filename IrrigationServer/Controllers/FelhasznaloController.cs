@@ -34,6 +34,9 @@ namespace IrrigationServer.Controllers
             _configuration = configuration;
         }
 
+        [HttpGet()]
+        public void LoginCheck() { }
+
         [AllowAnonymous]
         [HttpPost("google")]
         public async Task<IActionResult> Google([FromBody] UserTokenId token)

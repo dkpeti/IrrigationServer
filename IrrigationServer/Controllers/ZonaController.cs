@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace IrrigationServer.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/zona")]
     [ApiController]
     public class ZonaController : ControllerBase
