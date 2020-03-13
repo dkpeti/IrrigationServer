@@ -16,15 +16,19 @@ namespace IrrigationServer.DataManagers
             _irrigationContext = context;
         }
 
-        public IEnumerable<Zona> GetAll()
-        {
-            return _irrigationContext.Zonak.ToList();
-        }
-
-        public Zona Get(long id)
+        public IEnumerable<Zona> GetAllByPiId(string userId, long? piId = null)
         {
             return _irrigationContext.Zonak
-                    .FirstOrDefault(e => e.Id == id);
+                .Where(zona => zona.Pi.User.Id == userId)
+                .Where(zona => piId == null || zona.Pi.Id == piId)
+                .ToList();
+        }
+
+        public Zona Get(string userId, long id)
+        {
+            return _irrigationContext.Zonak
+                .Where(zona => zona.Pi.User.Id == userId)
+                .FirstOrDefault(e => e.Id == id);
         }
 
         public void Add(Zona entity)

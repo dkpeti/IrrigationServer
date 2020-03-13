@@ -3,6 +3,7 @@ using IrrigationServer.DataManagers;
 using IrrigationServer.DTOs;
 using IrrigationServer.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -17,30 +18,33 @@ namespace IrrigationServer.Controllers
     public class ZonaController : ControllerBase
     {
         private readonly IZonaManager _zonaManager;
+        private readonly UserManager<User> _userManager;
         private readonly IPiManager _piManager;
         private readonly IMapper _mapper;
 
-        public ZonaController(IZonaManager zonaManager, IPiManager piManager, IMapper mapper)
+        public ZonaController(IZonaManager zonaManager, UserManager<User> userManager, IPiManager piManager, IMapper mapper)
         {
             _zonaManager = zonaManager;
+            _userManager = userManager;
             _piManager = piManager;
             _mapper = mapper;
         }
 
         // GET: api/Zona
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get([FromQuery(Name = "piId")] long? piId = null)
         {
-            IEnumerable<Zona> zonak = _zonaManager.GetAll();
+            User user = await _userManager.GetUserAsync(User);
+            IEnumerable<Zona> zonak = _zonaManager.GetAllByPiId(user.Id, piId);
             return Ok(zonak.Select(zona => _mapper.Map<ZonaDTO>(zona)));
-
         }
 
         // GET: api/Zona/5
         [HttpGet("{id}", Name = "GetZona")]
-        public IActionResult Get(long id)
+        public async Task<IActionResult> Get(long id)
         {
-            Zona zona = _zonaManager.Get(id);
+            User user = await _userManager.GetUserAsync(User);
+            Zona zona = _zonaManager.Get(user.Id, id);
 
             if (zona == null)
             {
@@ -52,14 +56,15 @@ namespace IrrigationServer.Controllers
 
         // POST: api/Zona
         [HttpPost]
-        public IActionResult Post([FromBody] ZonaDTO zona)
+        public async Task<IActionResult> Post([FromBody] ZonaDTO zona)
         {
             if (zona == null)
             {
                 return BadRequest("Zona is null.");
             }
 
-            Pi pi = _piManager.Get(zona.PiId);
+            User user = await _userManager.GetUserAsync(User);
+            Pi pi = _piManager.Get(user.Id, zona.PiId);
             if(pi == null)
             {
                 return BadRequest("Pi does not exist");
@@ -76,20 +81,21 @@ namespace IrrigationServer.Controllers
 
         // PUT: api/Zona/5
         [HttpPut("{id}")]
-        public IActionResult Put(long id, [FromBody] ZonaDTO zona)
+        public async Task<IActionResult> Put(long id, [FromBody] ZonaDTO zona)
         {
             if (zona == null)
             {
                 return BadRequest("Zona is null.");
             }
 
-            Pi pi = _piManager.Get(zona.PiId);
+            User user = await _userManager.GetUserAsync(User);
+            Pi pi = _piManager.Get(user.Id, zona.PiId);
             if (pi == null)
             {
                 return BadRequest("Pi does not exist");
             }
 
-            Zona zonaToUpdate = _zonaManager.Get(id);
+            Zona zonaToUpdate = _zonaManager.Get(user.Id, id);
             if (zonaToUpdate == null)
             {
                 return NotFound("A Zona record nem talalhato.");
@@ -104,9 +110,10 @@ namespace IrrigationServer.Controllers
 
         // DELETE: api/Zona/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        public async Task<IActionResult> Delete(long id)
         {
-            Zona zona = _zonaManager.Get(id);
+            User user = await _userManager.GetUserAsync(User);
+            Zona zona = _zonaManager.Get(user.Id, id);
             if (zona == null)
             {
                 return NotFound("A Zona record nem talalhato.");

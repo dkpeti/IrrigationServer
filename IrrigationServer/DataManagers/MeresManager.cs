@@ -14,25 +14,21 @@ namespace IrrigationServer.DataManagers
             _irrigationContext = context;
         }
 
-        public IEnumerable<Szenzor> GetAllByZonaId(long zonaId)
-        {
-            return _irrigationContext.Szenzorok.Where(szenzor => szenzor.Zona.Id == zonaId).ToList();
-        }
-
-        public IEnumerable<Meres> GetAllBySzenzorId(long szenzorId)
-        {
-            return _irrigationContext.Meresek.Where(meres => meres.Szenzor.Id == szenzorId).ToList();
-        }
-
-        public IEnumerable<Meres> GetAll()
-        {
-            return _irrigationContext.Meresek.ToList();
-        }
-
-        public Meres Get(long id)
+        public IEnumerable<Meres> GetAllByPiIdAndZonaIdAndSzenzorId(string userId, long? piId = null, long? zonaId = null, long? szenzorId = null)
         {
             return _irrigationContext.Meresek
-                    .FirstOrDefault(e => e.Id == id);
+                .Where(meres => meres.Szenzor.Pi.User.Id == userId)
+                .Where(meres => szenzorId == null || meres.Szenzor.Id == szenzorId)
+                .Where(meres => zonaId == null || meres.Szenzor.Zona != null && meres.Szenzor.Zona.Id == zonaId)
+                .Where(meres => piId == null || meres.Szenzor.Pi.Id == piId)
+                .ToList();
+        }
+
+        public Meres Get(string userId, long id)
+        {
+            return _irrigationContext.Meresek
+                .Where(meres => meres.Szenzor.Pi.User.Id == userId)
+                .FirstOrDefault(e => e.Id == id);
         }
 
         public void Add(Meres entity)

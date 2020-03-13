@@ -7,9 +7,8 @@ namespace IrrigationServer.DataManagers
     {
         void Add(Szenzor entity);
         void Delete(Szenzor zona);
-        Szenzor Get(long id);
-        IEnumerable<Szenzor> GetAll();
-        IEnumerable<Szenzor> GetAllByZonaId(long zonaId);
+        Szenzor Get(string userId, long id);
+        IEnumerable<Szenzor> GetAllByPiIdAndZonaId(string userId, long? piId = null, long? zonaId = null);
         void Update(Szenzor zona, Szenzor entity);
     }
 }

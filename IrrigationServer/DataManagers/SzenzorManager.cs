@@ -14,21 +14,21 @@ namespace IrrigationServer.DataManagers
             _irrigationContext = context;
         }
 
-        public IEnumerable<Szenzor> GetAll()
-        {
-            return _irrigationContext.Szenzorok.ToList();
-        }
-
         /**/
-        public IEnumerable<Szenzor> GetAllByZonaId(long zonaId)
-        {
-            return _irrigationContext.Szenzorok.Where(szenzor => szenzor.Zona.Id == zonaId).ToList();
-        }
-
-        public Szenzor Get(long id)
+        public IEnumerable<Szenzor> GetAllByPiIdAndZonaId(string userId, long? piId = null, long? zonaId = null)
         {
             return _irrigationContext.Szenzorok
-                    .FirstOrDefault(e => e.Id == id);
+                .Where(szenzor => szenzor.Pi.User.Id == userId)
+                .Where(szenzor => zonaId == null || szenzor.Zona != null && szenzor.Zona.Id == zonaId)
+                .Where(szenzor => piId == null || szenzor.Pi.Id == piId)
+                .ToList();
+        }
+
+        public Szenzor Get(string userId, long id)
+        {
+            return _irrigationContext.Szenzorok
+                .Where(szenzor => szenzor.Pi.User.Id == userId)
+                .FirstOrDefault(e => e.Id == id);
         }
 
         public void Add(Szenzor entity)

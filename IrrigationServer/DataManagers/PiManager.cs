@@ -26,15 +26,18 @@ namespace IrrigationServer.DataManagers
             _irrigationContext.SaveChanges();
         }
 
-        public Pi Get(long id)
+        public Pi Get(string userId, long id)
         {
             return _irrigationContext.Pies
-                    .FirstOrDefault(e => e.Id == id);
+                .Where(pi => pi.User.Id == userId)
+                .FirstOrDefault(e => e.Id == id);
         }
 
-        public IEnumerable<Pi> GetAll()
+        public IEnumerable<Pi> GetAll(string userId)
         {
-            return _irrigationContext.Pies.ToList();
+            return _irrigationContext.Pies
+                .Where(pi => pi.User.Id == userId)
+                .ToList();
         }
 
         public void Update(Pi pi, Pi entity)

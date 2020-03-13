@@ -10,8 +10,8 @@ namespace IrrigationServer.DataManagers
     {
         void Add(Pi entity);
         void Delete(Pi pi);
-        Pi Get(long id);
-        IEnumerable<Pi> GetAll();
+        Pi Get(string userId, long id);
+        IEnumerable<Pi> GetAll(string userId);
         void Update(Pi pi, Pi entity);
     }
 }

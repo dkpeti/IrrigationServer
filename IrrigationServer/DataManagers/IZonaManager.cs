@@ -7,8 +7,8 @@ namespace IrrigationServer.DataManagers
     {
         void Add(Zona entity);
         void Delete(Zona zona);
-        Zona Get(long id);
-        IEnumerable<Zona> GetAll();
+        Zona Get(string userId, long id);
+        IEnumerable<Zona> GetAllByPiId(string userId, long? piId = null);
         void Update(Zona zona, Zona entity);
     }
 }

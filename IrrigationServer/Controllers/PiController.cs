@@ -29,17 +29,19 @@ namespace IrrigationServer.Controllers
 
         // GET: api/Pi
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            IEnumerable<Pi> pies = _piManager.GetAll();
+            User user = await _userManager.GetUserAsync(User);
+            IEnumerable<Pi> pies = _piManager.GetAll(user.Id);
             return Ok(pies.Select(pies => _mapper.Map<PiDTO>(pies)));
         }
 
         // GET: api/Pi/5
         [HttpGet("{id}", Name = "GetPi")]
-        public IActionResult Get(long id)
+        public async Task<IActionResult> Get(long id)
         {
-            Pi pi = _piManager.Get(id);
+            User user = await _userManager.GetUserAsync(User);
+            Pi pi = _piManager.Get(user.Id, id);
             if(pi == null)
             {
                 return NotFound("A Pi record nem talalhato");
@@ -75,8 +77,9 @@ namespace IrrigationServer.Controllers
             {
                 return BadRequest("Pi is null.");
             }
-            Pi piToUpdate = _piManager.Get(id);
-            piToUpdate.User = await _userManager.FindByIdAsync("425760f0-4198-48b1-9d5a-5dd4e97c857d");
+            User user = await _userManager.GetUserAsync(User);
+            Pi piToUpdate = _piManager.Get(user.Id, id);
+            piToUpdate.User = user;
             if (piToUpdate == null)
             {
                 return NotFound("A Pi record nem talalhato.");
@@ -87,9 +90,10 @@ namespace IrrigationServer.Controllers
 
         // DELETE: api/Pi/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        public async Task<IActionResult> Delete(long id)
         {
-            Pi pi = _piManager.Get(id);
+            User user = await _userManager.GetUserAsync(User);
+            Pi pi = _piManager.Get(user.Id, id);
             if(pi == null)
             {
                 return NotFound("A Pi record nem talalhato.");

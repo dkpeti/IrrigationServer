@@ -3,42 +3,47 @@ using IrrigationServer.DataManagers;
 using IrrigationServer.DTOs;
 using IrrigationServer.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IrrigationServer.Controllers
 {
     [Authorize]
-    [Route("api/zona/{zonaId:int}/szenzor")]
+    [Route("api/szenzor")]
     [ApiController]
     public class SzenzorController : ControllerBase
     {
         private readonly IZonaManager _zonaManager;
+        private readonly UserManager<User> _userManager;
         private readonly ISzenzorManager _szenzorManager;
         private readonly IMapper _mapper;
 
-        public SzenzorController(IZonaManager zonaManager, ISzenzorManager szenzorManager, IMapper mapper)
+        public SzenzorController(IZonaManager zonaManager, UserManager<User> userManager, ISzenzorManager szenzorManager, IMapper mapper)
         {
             _zonaManager = zonaManager;
+            _userManager = userManager;
             _szenzorManager = szenzorManager;
             _mapper = mapper;
         }
 
         // GET: api/Szenzor
         [HttpGet]
-        public IActionResult Get(int zonaId)
+        public async Task<IActionResult> Get([FromQuery(Name = "piId")] long? piId = null, [FromQuery(Name = "zonaId")] long? zonaId = null)
         {
-            //
-            IEnumerable<Szenzor> szenzorok = _szenzorManager.GetAllByZonaId(zonaId);
+            User user = await _userManager.GetUserAsync(User);
+            IEnumerable<Szenzor> szenzorok = _szenzorManager.GetAllByPiIdAndZonaId(user.Id, piId, zonaId);
             return Ok(szenzorok.Select(szenzor => _mapper.Map<SzenzorDTO>(szenzor)));
         }
 
         // GET: api/Szenzor/5
         [HttpGet("{id}", Name = "GetSzenzor")]
-        public IActionResult Get(int zonaId, long id)
+        public async Task<IActionResult> Get(int zonaId, long id)
         {
-            Szenzor szenzor = _szenzorManager.Get(id);
+            User user = await _userManager.GetUserAsync(User);
+            Szenzor szenzor = _szenzorManager.Get(user.Id, id);
 
             if (szenzor == null)
             {
@@ -49,15 +54,16 @@ namespace IrrigationServer.Controllers
         }
 
         // POST: api/Szenzor
-        [HttpPost]
-        public IActionResult Post(int zonaId, [FromBody] SzenzorDTO szenzor)
+        /*[HttpPost]
+        public async Task<IActionResult> Post(int zonaId, [FromBody] SzenzorDTO szenzor)
         {
             if (szenzor == null)
             {
                 return BadRequest("Szenzor is null.");
             }
-            //
-            Zona zona = _zonaManager.Get(zonaId);
+
+            User user = await _userManager.GetUserAsync(User);
+            Zona zona = _zonaManager.Get(user.Id, zonaId);
             Szenzor newSzenzor = _mapper.Map<Szenzor>(szenzor);
             newSzenzor.Zona = zona;
             _szenzorManager.Add(newSzenzor);
@@ -65,18 +71,19 @@ namespace IrrigationServer.Controllers
                   "GetSzenzor",
                   new { ZonaId = zonaId, Id = newSzenzor.Id },
                   _mapper.Map<SzenzorDTO>(newSzenzor));
-        }
+        }*/
 
         // PUT: api/Szenzor/5
         [HttpPut("{id}")]
-        public IActionResult Put(int zonaId, long id, [FromBody] SzenzorDTO szenzor)
+        public async Task<IActionResult> Put(int zonaId, long id, [FromBody] SzenzorDTO szenzor)
         {
             if (szenzor == null)
             {
                 return BadRequest("Szenzor is null.");
             }
 
-            Szenzor szenzorToUpdate = _szenzorManager.Get(id);
+            User user = await _userManager.GetUserAsync(User);
+            Szenzor szenzorToUpdate = _szenzorManager.Get(user.Id, id);
             if (szenzorToUpdate == null)
             {
                 return NotFound("A Szenzor record nem talalhato.");
@@ -90,9 +97,10 @@ namespace IrrigationServer.Controllers
 
         // DELETE: api/Szenzor/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(int zonaId, long id)
+        public async Task<IActionResult> Delete(int zonaId, long id)
         {
-            Szenzor szenzor = _szenzorManager.Get(id);
+            User user = await _userManager.GetUserAsync(User);
+            Szenzor szenzor = _szenzorManager.Get(user.Id, id);
             if (szenzor == null)
             {
                 return NotFound("A Szenzor record nem talalhato.");

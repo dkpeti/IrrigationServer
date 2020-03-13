@@ -7,10 +7,8 @@ namespace IrrigationServer.DataManagers
     {
         void Add(Meres entity);
         void Delete(Meres zona);
-        Meres Get(long id);
-        IEnumerable<Meres> GetAll();
-        IEnumerable<Szenzor> GetAllByZonaId(long zonaId);
-        IEnumerable<Meres> GetAllBySzenzorId(long szenzorId);
+        Meres Get(string userId, long id);
+        IEnumerable<Meres> GetAllByPiIdAndZonaIdAndSzenzorId(string userId, long? piId = null, long? zonaId = null, long? szenzorId = null);
         void Update(Meres zona, Meres entity);
 
     }
