@@ -12,5 +12,6 @@ namespace IrrigationServer.DTOs
         public long Id { get; set; }
         public long PiId { get; set; }
         public string Nev { get; set; }
+        public long[] SzenzorLista { get; set; }
     }
 }

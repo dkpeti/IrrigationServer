@@ -24,6 +24,15 @@ namespace IrrigationServer.DataManagers
                 .ToList();
         }
 
+        public IEnumerable<Szenzor> GetAllByPiIdAndInIdList(string userId, long piId, long[] idList)
+        {
+            return _irrigationContext.Szenzorok
+                .Where(szenzor => szenzor.Pi.User.Id == userId)
+                .Where(szenzor => szenzor.Pi.Id == piId)
+                .Where(szenzor => idList.Contains(szenzor.Id))
+                .ToList();
+        }
+
         public Szenzor Get(string userId, long id)
         {
             return _irrigationContext.Szenzorok

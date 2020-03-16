@@ -19,13 +19,15 @@ namespace IrrigationServer.Controllers
     {
         private readonly IZonaManager _zonaManager;
         private readonly UserManager<User> _userManager;
+        private readonly ISzenzorManager _szenzorManager;
         private readonly IPiManager _piManager;
         private readonly IMapper _mapper;
 
-        public ZonaController(IZonaManager zonaManager, UserManager<User> userManager, IPiManager piManager, IMapper mapper)
+        public ZonaController(IZonaManager zonaManager, UserManager<User> userManager, ISzenzorManager szenzorManager, IPiManager piManager, IMapper mapper)
         {
             _zonaManager = zonaManager;
             _userManager = userManager;
+            _szenzorManager = szenzorManager;
             _piManager = piManager;
             _mapper = mapper;
         }
@@ -72,6 +74,7 @@ namespace IrrigationServer.Controllers
     
             Zona newZona = _mapper.Map<Zona>(zona);
             newZona.Pi = pi;
+            newZona.Szenzorok = _szenzorManager.GetAllByPiIdAndInIdList(user.Id, pi.Id, zona.SzenzorLista).ToList();
             _zonaManager.Add(newZona);
             return CreatedAtRoute(
                   "GetZona",
@@ -103,6 +106,12 @@ namespace IrrigationServer.Controllers
 
             Zona updatedZona = _mapper.Map<Zona>(zona);
             updatedZona.Pi = pi;
+            updatedZona.Szenzorok = zonaToUpdate.Szenzorok;
+            updatedZona.Szenzorok.Clear();
+            foreach(var szenzor in _szenzorManager.GetAllByPiIdAndInIdList(user.Id, pi.Id, zona.SzenzorLista))
+            {
+                updatedZona.Szenzorok.Add(szenzor);
+            }
 
             _zonaManager.Update(zonaToUpdate, updatedZona);
             return NoContent();
