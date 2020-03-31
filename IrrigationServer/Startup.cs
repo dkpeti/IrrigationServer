@@ -9,6 +9,7 @@ using AutoMapper;
 using IrrigationServer.Authentication;
 using IrrigationServer.Context;
 using IrrigationServer.DataManagers;
+using IrrigationServer.Hubs;
 using IrrigationServer.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -41,11 +42,14 @@ namespace IrrigationServer
 
             services.AddDbContext<IrrigationDbContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:IrrigationDB"]));
             services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<IrrigationDbContext>().AddDefaultTokenProviders();
+
             services.AddScoped<IPiManager, PiManager>();
             services.AddScoped<IZonaManager, ZonaManager>();
             services.AddScoped<ISzenzorManager, SzenzorManager>();
             services.AddScoped<IMeresManager, MeresManager>();
             services.AddScoped<GoogleAuthService>();
+
+            services.AddSignalR();
             services.AddControllers();
 
             services.AddSwaggerGen(c =>
@@ -110,6 +114,7 @@ namespace IrrigationServer
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<PiHub>("/api/pi");
             });
 
             app.UseSwagger();

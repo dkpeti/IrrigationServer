@@ -11,6 +11,7 @@ namespace IrrigationServer.DataManagers
         void Add(Pi entity);
         void Delete(Pi pi);
         Pi Get(string userId, long id);
+        Pi GetByAzonosito(string azonosito);
         IEnumerable<Pi> GetAll(string userId);
         void Update(Pi pi, Pi entity);
     }

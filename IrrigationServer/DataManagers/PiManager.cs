@@ -32,6 +32,12 @@ namespace IrrigationServer.DataManagers
                 .Where(pi => pi.User.Id == userId)
                 .FirstOrDefault(e => e.Id == id);
         }
+        public Pi GetByAzonosito(string azonosito)
+        {
+            return _irrigationContext.Pies
+                .Where(pi => pi.Azonosito == azonosito)
+                .FirstOrDefault();
+        }
 
         public IEnumerable<Pi> GetAll(string userId)
         {
