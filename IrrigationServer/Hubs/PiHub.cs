@@ -12,54 +12,50 @@ namespace IrrigationServer.Hubs
 {
     public interface IPiClient
     {
-        public Task PiLoginFailed();
-        public Task PiLoginSucceeded();
-
-        public Task RegisterSensorFailed(SzenzorDTO szenzorDTO);
-        public Task RegisterSensorSucceeded(SzenzorDTO szenzorDTO, long id);
     }
 
     public class PiHub : Hub<IPiClient>
     {
         private readonly IMapper _mapper;
         private readonly ISzenzorManager _szenzorManager;
+        private readonly IMeresManager _meresManager;
         private readonly IPiManager _piManager;
 
         private Dictionary<string, string> _azonositoToConnectionId;
 
-        public PiHub(ISzenzorManager szenzorManager, IPiManager piManager, IMapper mapper)
+        public PiHub(ISzenzorManager szenzorManager, IMeresManager meresManager, IPiManager piManager, IMapper mapper)
         {
             _szenzorManager = szenzorManager;
+            _meresManager = meresManager;
             _piManager = piManager;
             _mapper = mapper;
 
             _azonositoToConnectionId = new Dictionary<string, string>();
         }
 
-        public async Task PiLogin(string azonosito)
+        public async Task<PiLoginResponseDTO> PiLogin(string azonosito)
         {
             try
             {
                 Pi pi = _piManager.GetByAzonosito(azonosito);
                 if (pi == null)
                 {
-                    await Clients.Caller.PiLoginFailed();
+                    return new PiLoginResponseDTO() { Success = false };
                 }
                 else
                 {
                     _azonositoToConnectionId.Add(azonosito, Context.ConnectionId);
                     Context.Items.Add("piId", azonosito);
-                    await Clients.Caller.PiLoginSucceeded();
+                    return new PiLoginResponseDTO() { Success = true };
                 }
             }
             catch (Exception)
             {
-                await Clients.Caller.PiLoginFailed();
-                throw;
+                return new PiLoginResponseDTO() { Success = false };
             }
         }
 
-        public async Task RegisterSensor(SzenzorDTO szenzorDTO)
+        public async Task<RegisterSensorResponseDTO> RegisterSensor(SzenzorDTO szenzorDTO)
         {
             try
             {
@@ -68,19 +64,47 @@ namespace IrrigationServer.Hubs
 
                 if (pi == null || szenzor == null)
                 {
-                    await Clients.Caller.RegisterSensorFailed(szenzorDTO);
+                    return new RegisterSensorResponseDTO() { Success = false };
                 }
                 else
                 {
                     szenzor.Pi = pi;
                     _szenzorManager.Add(szenzor);
-                    await Clients.Caller.RegisterSensorSucceeded(szenzorDTO, szenzor.Id);
+                    return new RegisterSensorResponseDTO() { Success = true, Id = szenzor.Id };
                 }
             }
             catch (Exception)
             {
-                await Clients.Caller.RegisterSensorFailed(szenzorDTO);
-                throw;
+                return new RegisterSensorResponseDTO() { Success = false };
+            }
+        }
+
+        public async Task<PostMeresDataResponseDTO> PostMeresData(PostMeresDataDTO meresDTO)
+        {
+            try
+            {
+                Pi pi = _piManager.GetByAzonosito(Context.Items["piId"] as string);
+                Szenzor szenzor = _szenzorManager.GetOneByPiIdAndId(pi.Id, meresDTO.SzenzorId);
+                Meres meres = new Meres()
+                {
+                    MertAdat = meresDTO.MertAdat,
+                    Mikor = meresDTO.Mikor,
+                    Szenzor = szenzor
+                };
+
+                if (pi == null || meres == null || szenzor == null)
+                {
+                    return new PostMeresDataResponseDTO() { Success = false };
+                }
+                else
+                {
+                    _meresManager.Add(meres);
+                    return new PostMeresDataResponseDTO() { Success = true };
+                }
+            }
+            catch (Exception)
+            {
+                return new PostMeresDataResponseDTO() { Success = false };
             }
         }
     }

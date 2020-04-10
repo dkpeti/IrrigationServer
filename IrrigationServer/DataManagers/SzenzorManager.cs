@@ -39,6 +39,12 @@ namespace IrrigationServer.DataManagers
                 .Where(szenzor => szenzor.Pi.User.Id == userId)
                 .FirstOrDefault(e => e.Id == id);
         }
+        public Szenzor GetOneByPiIdAndId(long piId, long id)
+        {
+            return _irrigationContext.Szenzorok
+                .Where(szenzor => szenzor.Pi.Id == piId)
+                .FirstOrDefault(e => e.Id == id);
+        }
 
         public void Add(Szenzor entity)
         {

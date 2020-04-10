@@ -114,7 +114,7 @@ namespace IrrigationServer
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<PiHub>("/api/pi");
+                endpoints.MapHub<PiHub>("/ws/pi");
             });
 
             app.UseSwagger();
