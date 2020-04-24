@@ -15,6 +15,9 @@ namespace IrrigationServer.Models
 
         public string Nev { get; set; }
 
+        public DateTime? UtolsoOntozesKezdese { get; set; }
+        public int? UtolsoOntozesHossza { get; set; }
+
         public virtual ICollection<Szenzor> Szenzorok { get; set; }
         public virtual Pi Pi { get; set; }
     }

@@ -1,5 +1,7 @@
 ﻿using IrrigationServer.Context;
+using IrrigationServer.Hubs;
 using IrrigationServer.Models;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +11,8 @@ namespace IrrigationServer.DataManagers
 {
     public class PiManager : IPiManager
     {
-        readonly IrrigationDbContext _irrigationContext;
+        private readonly IrrigationDbContext _irrigationContext;
+
         public PiManager(IrrigationDbContext context)
         {
             _irrigationContext = context;

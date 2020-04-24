@@ -51,5 +51,10 @@ namespace IrrigationServer.DataManagers
             _irrigationContext.Zonak.Remove(zona);
             _irrigationContext.SaveChanges();
         }
+        
+        public void UpdateOntozes(Zona zona)
+        {
+            _irrigationContext.SaveChanges();
+        }
     }
 }

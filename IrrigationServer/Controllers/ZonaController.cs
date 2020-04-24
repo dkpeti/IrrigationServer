@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
 using IrrigationServer.DataManagers;
 using IrrigationServer.DTOs;
+using IrrigationServer.Hubs;
 using IrrigationServer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IrrigationServer.Controllers
@@ -19,14 +22,16 @@ namespace IrrigationServer.Controllers
     {
         private readonly IZonaManager _zonaManager;
         private readonly UserManager<User> _userManager;
+        private readonly IHubContext<PiHub> _piHub;
         private readonly ISzenzorManager _szenzorManager;
         private readonly IPiManager _piManager;
         private readonly IMapper _mapper;
 
-        public ZonaController(IZonaManager zonaManager, UserManager<User> userManager, ISzenzorManager szenzorManager, IPiManager piManager, IMapper mapper)
+        public ZonaController(IZonaManager zonaManager, UserManager<User> userManager, IHubContext<PiHub> piHub, ISzenzorManager szenzorManager, IPiManager piManager, IMapper mapper)
         {
             _zonaManager = zonaManager;
             _userManager = userManager;
+            _piHub = piHub;
             _szenzorManager = szenzorManager;
             _piManager = piManager;
             _mapper = mapper;
@@ -50,7 +55,7 @@ namespace IrrigationServer.Controllers
 
             if (zona == null)
             {
-                return NotFound("A Zona record nem talalhato.");
+                return NotFound("A Zona record nem található.");
             }
 
             return Ok(_mapper.Map<ZonaDTO>(zona));
@@ -69,7 +74,7 @@ namespace IrrigationServer.Controllers
             Pi pi = _piManager.Get(user.Id, zona.PiId);
             if(pi == null)
             {
-                return BadRequest("Pi does not exist");
+                return BadRequest("A pi nem létezik");
             }
     
             Zona newZona = _mapper.Map<Zona>(zona);
@@ -95,13 +100,13 @@ namespace IrrigationServer.Controllers
             Pi pi = _piManager.Get(user.Id, zona.PiId);
             if (pi == null)
             {
-                return BadRequest("Pi does not exist");
+                return BadRequest("A pi nem létezik");
             }
 
             Zona zonaToUpdate = _zonaManager.Get(user.Id, id);
             if (zonaToUpdate == null)
             {
-                return NotFound("A Zona record nem talalhato.");
+                return NotFound("A Zona record nem található.");
             }
 
             Zona updatedZona = _mapper.Map<Zona>(zona);
@@ -125,11 +130,64 @@ namespace IrrigationServer.Controllers
             Zona zona = _zonaManager.Get(user.Id, id);
             if (zona == null)
             {
-                return NotFound("A Zona record nem talalhato.");
+                return NotFound("A Zona record nem található.");
             }
 
             _zonaManager.Delete(zona);
             return NoContent();
+        }
+
+        [HttpPost("{id}/ontozes")]
+        public async Task<IActionResult> PostOntozes(long id, [FromBody] OntozesDTO ontozes)
+        {
+            User user = await _userManager.GetUserAsync(User);
+            Zona zona = _zonaManager.Get(user.Id, id);
+
+            if (zona == null)
+            {
+                return NotFound("A Zona record nem található.");
+            }
+
+            string connectionId = PiHub.GetConnectionIdForAzonosito(zona.Pi.Azonosito);
+            if(connectionId == null)
+            {
+                return NotFound("A pi nem érhető el");
+            }
+
+            await _piHub.Clients.Client(connectionId).SendCoreAsync("Ontozes", new object[] { ontozes });
+            var waitForResponse = new AutoResetEvent(false);
+            bool piOK = false;
+            void Callback(string connId, bool isSuccessful)
+            {
+                if (connectionId == connId)
+                {
+                    piOK = isSuccessful;
+                    waitForResponse.Set();
+                }
+            }
+            PiHub.OntozesResponse += Callback;
+            waitForResponse.WaitOne(TimeSpan.FromSeconds(10));
+            PiHub.OntozesResponse -= Callback;
+
+            if(piOK)
+            {
+                if(ontozes.Utasitas == OntozesUtasitas.KEZDES)
+                {
+                    zona.UtolsoOntozesKezdese = DateTime.UtcNow;
+                    zona.UtolsoOntozesHossza = ontozes.Hossz ?? 0;
+                }
+                else if(ontozes.Utasitas == OntozesUtasitas.VEGE)
+                {
+                    zona.UtolsoOntozesKezdese = null;
+                    zona.UtolsoOntozesHossza = null;
+                }
+                _zonaManager.UpdateOntozes(zona);
+                return Ok();
+            }
+            else
+            {
+                return NotFound("A pi nem érhető el");
+            }
         }
     }
 }

@@ -1,0 +1,40 @@
+version: '3.4'
+
+networks:
+  irrigation-network:
+    driver: bridge 
+
+services:
+  irrigation-server:
+    image: irrigation-server:latest
+    depends_on:
+      - irrigation-db
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"     
+    environment:
+      ConnectionString__Host: irrigation-db
+      ConnectionString__DB: irrigation
+      ConnectionString__Username: irrigation-user
+      ConnectionString__Password: irrigation-password
+    networks:
+      - irrigation-network  
+  
+  irrigation-db:
+    image: postgres:latest
+    ports:
+      - 5432
+    restart: always
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "irrigation-user"
+      POSTGRES_PASSWORD: "irrigation-password"
+      POSTGRES_DB: "irrigation"
+    networks:
+      - irrigation-network
+volumes:
+  db_volume:

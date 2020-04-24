@@ -49,7 +49,7 @@ namespace IrrigationServer.Context
                 .WithOne(e => e.Pi)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
-             
+
             //Kapcsolat létrehozása User és Pik között
             modelBuilder.Entity<User>()
                 .HasMany(c => c.Pies)
@@ -61,13 +61,9 @@ namespace IrrigationServer.Context
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseLazyLoadingProxies();
-            optionsBuilder.UseLoggerFactory(MyLoggerFactory)  //tie-up DbContext with LoggerFactory object
-            .EnableSensitiveDataLogging()
-            .UseSqlServer(
-            @"Server=(localdb)\mssqllocaldb;Database=IrrigationDB;Trusted_Connection=True;ConnectRetryCount=0");
         }
 
-        public DbSet<User>Users { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<Pi> Pies { get; set; }
         public DbSet<Zona> Zonak { get; set; }
         public DbSet<Szenzor> Szenzorok { get; set; }

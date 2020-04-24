@@ -10,5 +10,6 @@ namespace IrrigationServer.DataManagers
         Zona Get(string userId, long id);
         IEnumerable<Zona> GetAllByPiId(string userId, long? piId = null);
         void Update(Zona zona, Zona entity);
+        void UpdateOntozes(Zona zona);
     }
 }

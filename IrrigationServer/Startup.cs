@@ -27,9 +27,11 @@ namespace IrrigationServer
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private IWebHostEnvironment env;
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            this.env = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -40,7 +42,16 @@ namespace IrrigationServer
         {
             services.AddAutoMapper(typeof(Startup));
 
-            services.AddDbContext<IrrigationDbContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:IrrigationDB"]));
+            if(env.IsDevelopment())
+            {
+                services.AddEntityFrameworkNpgsql().AddDbContext<IrrigationDbContext>(opt => opt.UseNpgsql(Configuration["ConnectionString:IrrigationDB"]));
+            }
+            else
+            {
+                var connString = $"Host={Configuration["ConnectionString:Host"]};Database={Configuration["ConnectionString:DB"]};Username={Configuration["ConnectionString:Username"]};Password={Configuration["ConnectionString:Password"]};Integrated Security=true;Pooling=true;";
+                services.AddEntityFrameworkNpgsql().AddDbContext<IrrigationDbContext>(opt => opt.UseNpgsql(connString));
+            }
+            //services.AddDbContext<IrrigationDbContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:IrrigationDB"]));
             services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<IrrigationDbContext>().AddDefaultTokenProviders();
 
             services.AddScoped<IPiManager, PiManager>();
@@ -100,7 +111,7 @@ namespace IrrigationServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IrrigationDbContext dbContext)
         {
             if (env.IsDevelopment())
             {
@@ -123,6 +134,8 @@ namespace IrrigationServer
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Irrigation API");
                 c.RoutePrefix = string.Empty;
             });
+
+            dbContext.Database.Migrate();
         }
     }
 }

@@ -12,6 +12,8 @@ namespace IrrigationServer.Hubs
 {
     public interface IPiClient
     {
+        void RegisterPi(string azonosito);
+        void Ontozes(OntozesDTO ontozesDTO);
     }
 
     public class PiHub : Hub<IPiClient>
@@ -21,7 +23,10 @@ namespace IrrigationServer.Hubs
         private readonly IMeresManager _meresManager;
         private readonly IPiManager _piManager;
 
-        private Dictionary<string, string> _azonositoToConnectionId;
+        private static Dictionary<string, string> _azonositoToConnectionId;
+
+        public static event Action<string, bool> RegisterPiResponse;
+        public static event Action<string, bool> OntozesResponse;
 
         public PiHub(ISzenzorManager szenzorManager, IMeresManager meresManager, IPiManager piManager, IMapper mapper)
         {
@@ -30,24 +35,19 @@ namespace IrrigationServer.Hubs
             _piManager = piManager;
             _mapper = mapper;
 
-            _azonositoToConnectionId = new Dictionary<string, string>();
+            if (_azonositoToConnectionId == null)
+            {
+                _azonositoToConnectionId = new Dictionary<string, string>();
+            }
         }
 
         public async Task<PiLoginResponseDTO> PiLogin(string azonosito)
         {
             try
             {
-                Pi pi = _piManager.GetByAzonosito(azonosito);
-                if (pi == null)
-                {
-                    return new PiLoginResponseDTO() { Success = false };
-                }
-                else
-                {
-                    _azonositoToConnectionId.Add(azonosito, Context.ConnectionId);
-                    Context.Items.Add("piId", azonosito);
-                    return new PiLoginResponseDTO() { Success = true };
-                }
+                _azonositoToConnectionId.Add(azonosito, Context.ConnectionId);
+                Context.Items.Add("piId", azonosito);
+                return new PiLoginResponseDTO() { Success = true };
             }
             catch (Exception)
             {
@@ -106,6 +106,25 @@ namespace IrrigationServer.Hubs
             {
                 return new PostMeresDataResponseDTO() { Success = false };
             }
+        }
+
+        public async Task PiRegister(RegisterPiDTO piDTO)
+        {
+            RegisterPiResponse?.Invoke(Context.ConnectionId, piDTO.IsSuccessful);
+        }
+
+        public async Task Ontozes(OntozesResponseDTO ontozesDTO)
+        {
+            OntozesResponse?.Invoke(Context.ConnectionId, ontozesDTO.IsSuccessful);
+        }
+
+        public static string GetConnectionIdForAzonosito(string azonosito)
+        {
+            if (_azonositoToConnectionId.ContainsKey(azonosito))
+            {
+                return _azonositoToConnectionId[azonosito];
+            }
+            else return null;
         }
     }
 }
