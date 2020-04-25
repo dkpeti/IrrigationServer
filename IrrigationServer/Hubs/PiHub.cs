@@ -5,8 +5,6 @@ using IrrigationServer.Models;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace IrrigationServer.Hubs
@@ -46,14 +44,12 @@ namespace IrrigationServer.Hubs
         {
             try
             {
-                _azonositoToConnectionId.Add(azonosito, Context.ConnectionId);
+                _azonositoToConnectionId[azonosito] = Context.ConnectionId;
                 Context.Items.Add("piId", azonosito);
                 return new PiLoginResponseDTO() { Success = true };
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
-                Debug.WriteLine(e.StackTrace);
                 return new PiLoginResponseDTO() { Success = false };
             }
         }
